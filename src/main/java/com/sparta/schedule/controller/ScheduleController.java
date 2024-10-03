@@ -6,6 +6,7 @@ import com.sparta.schedule.service.ScheduleService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,9 +26,9 @@ public class ScheduleController {
     }
 
     @GetMapping("/schedules")
-    public List<ScheduleResponseDto> getSchedules() {
+    public List<ScheduleResponseDto> getSchedules(@RequestParam(required = false) LocalDateTime afterDate) {
         ScheduleService scheduleService = new ScheduleService(jdbcTemplate);
-        return scheduleService.getSchedules();
+        return scheduleService.getSchedules(afterDate);
     }
 
     @PutMapping("/schedules/{id}")

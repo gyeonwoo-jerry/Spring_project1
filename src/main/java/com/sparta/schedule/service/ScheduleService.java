@@ -6,6 +6,7 @@ import com.sparta.schedule.entity.Schedule;
 import com.sparta.schedule.repository.ScheduleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ScheduleService {
@@ -30,10 +31,10 @@ public class ScheduleService {
         return scheduleResponseDto;
     }
 
-    public List<ScheduleResponseDto> getSchedules() {
+    public List<ScheduleResponseDto> getSchedules(LocalDateTime afterDate) {
         // DB 조회
         ScheduleRepository scheduleRepository = new ScheduleRepository(jdbcTemplate);
-        return scheduleRepository.findAll();
+        return scheduleRepository.findAll(afterDate);
     }
 
     public Long updateSchedule(Long id, ScheduleRequestDto requestDto) {

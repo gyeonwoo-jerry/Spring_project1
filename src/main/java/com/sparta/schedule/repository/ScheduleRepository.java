@@ -45,22 +45,17 @@ public class ScheduleRepository {
         return schedule;
     }
 
-    public List<ScheduleResponseDto> findAll() {
+    public List<ScheduleResponseDto> findAll(LocalDateTime afterDate) {
         // DB 조회
         String sql = "SELECT * FROM schedules";
 
-        return jdbcTemplate.query(sql, new RowMapper<ScheduleResponseDto>() {
-            @Override
-            public ScheduleResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Long id = rs.getLong("id");
-                String username = rs.getString("user_name");
-                String contents = rs.getString("contents");
-                String title = rs.getString("title");
-                LocalDateTime initialdate = rs.getTimestamp("initial_date").toLocalDateTime();
-                LocalDateTime update = rs.getTimestamp("up_date").toLocalDateTime();
-                return new ScheduleResponseDto(id, username, contents, title, initialdate, update);
-            }
-        });
+        if (afterDate != null) {
+            sql += " WHERE up_date > ? ORDER BY up_date DESC";
+            return jdbcTemplate.query(sql, new Object[]{afterDate}, this::mapScheduleResponseDto);
+        } else {
+            // afterDate가 없으면 모든 데이터를 조회
+            return jdbcTemplate.query(sql, this::mapScheduleResponseDto);
+        }
     }
 
     public void update(Long id, ScheduleRequestDto requestDto) {
@@ -88,5 +83,16 @@ public class ScheduleRepository {
                 return null;
             }
         }, id);
+    }
+    // 중복되는 부분을 메서드로 분리
+    private ScheduleResponseDto mapScheduleResponseDto(ResultSet rs, int rowNum) throws SQLException {
+        Long id = rs.getLong("id");
+        String username = rs.getString("user_name");
+        String contents = rs.getString("contents");
+        String title = rs.getString("title");
+        LocalDateTime initialdate = rs.getTimestamp("initial_date").toLocalDateTime();
+        LocalDateTime update = rs.getTimestamp("up_date").toLocalDateTime();
+
+        return new ScheduleResponseDto(id, username, contents, title, initialdate, update);
     }
 }
